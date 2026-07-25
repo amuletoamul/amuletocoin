@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMULETO - The Eternal Guardian Coin</title>
+    
+    <!-- Nhúng các thư viện Web3 core chuẩn hóa quốc tế v6 -->
+    <script src="https://cloudflare.com"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 8%;
+            background-color: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: #f1c40f;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #00e676;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 160px 4% 50px;
+        }
+
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 80px;
+            gap: 50px;
+        }
+
+        .hero-text {
+            flex: 1.2;
+        }
+
+        .hero-text h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .hero-text h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #00e676; 
+            margin-bottom: 25px;
+        }
+
+        .hero-text p {
+            color: #9e9e9e;
+            font-size: 1rem;
+            margin-bottom: 35px;
+            text-align: justify;
+            max-width: 600px;
+        }
+
+        .btn-portal {
+            display: inline-block;
+            background: linear-gradient(90deg, #cddc39 0%, #00e676 100%);
+            color: #000000;
+            padding: 14px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-portal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4);
+        }
+
+        .hero-avatar {
+            flex: 0 0 400px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .avatar-circle {
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 230, 118, 0.1) 0%, rgba(5, 5, 5, 0.8) 70%);
+            box-shadow: 0 0 60px rgba(0, 230, 118, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(0, 230, 118, 0.5);
+        }
+
+        .avatar-circle span {
+            font-weight: 700;
+            color: #00e676;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+  .interactive-box {
+            background-color: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            border-radius: 16px;
+            padding: 35px;
+            max-width: 550px;
+            margin: 0 auto 50px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        }
+
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            background-color: #151515;
+            color: #888888;
+            border: 1px solid #222222;
+            padding: 10px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background-color: #00e676;
+            color: #000000;
+            border-color: #00e676;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-title {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .tab-price {
+            text-align: center;
+            color: #00e676;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .currency-selectors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .currency-btn {
+            flex: 1;
+            background-color: #151515;
+            border: 1px solid #222222;
+            color: white;
+            padding: 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .currency-btn.active {
+            border-color: #00e676;
+            background-color: rgba(0, 230, 118, 0.08);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #666666;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background-color: #151515;
+            border: 1px solid #222222;
+            padding: 14px;
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .btn-connect {
+            width: 100%;
+            background-color: #00e676;
+            color: black;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-connect.connected {
+            background-color: #222222;
+            color: #00e676;
+            border: 1px solid #00e676;
+        }
+
+        .direct-send {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        .direct-send p {
+            font-size: 0.85rem;
+            color: #666666;
+            margin-bottom: 10px;
+        }
+
+        .wallet-address {
+            background-color: #151515;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #00e676;
+            word-break: break-all;
+            border: 1px dashed #222222;
+        }
+
+        .stages-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stage-box {
+            background-color: #151515;
+            border: 1px solid #222222;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .stage-box.active {
+            border-color: #00e676;
+            background-color: rgba(0, 230, 118, 0.04);
+        }
+
+        .stage-title {
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .stage-status {
+            color: #00e676;
+            font-size: 0.75rem;
+        }
+
+        .contract-box {
+            max-width: 550px;
+            margin: 0 auto 60px;
+            background-color: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .contract-box span {
+            display: block;
+            font-size: 0.7rem;
+            color: #555555;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .contract-address {
+            font-family: monospace;
+            color: #00e676;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        footer {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            border-top: 1px solid #111111;
+            text-align: center;
+        }
+
+        .disclaimer {
+            font-size: 0.75rem;
+            color: #444444;
+            text-align: justify;
+        }
+
+        @media (max-width: 992px) {
+            header { padding: 25px 5%; }
+            .container { padding-top: 120px; }
+            .hero-section { flex-direction: column; text-align: center; gap: 40px; }
+            .hero-text p { text-align: center; margin: 0 auto 30px; }
+            .hero-avatar { order: -1; }
+            .avatar-circle { width: 260px; height: 260px; }
+            .hero-text h1, .hero-text h2 { font-size: 2.2rem; }
+            .stages-container { grid-template-columns: 1fr; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">AMULETO AMUL</div>
+        <nav>
+            <a href="#" onclick="switchTab('seed')">Seed Round</a>
+            <a href="#" onclick="switchTab('presale')">Presale Portal</a>
+            <a href="https://x.com" target="_blank">Twitter/X</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-text">
+                <h1>The Eternal Guardian Coin</h1>
+                <h2>That Brings You Peace</h2>
+                <p>
+                    AMULETO (AMUL) is a premium spiritual memecoin built on the BNB Chain, featuring a strictly fixed total supply of 83,000,000 tokens—representing exactly 1% of the 2026 global population. Holding this token activates your digital protective shield, banishing bad luck and securing eternal financial fortune right inside your Web3 wallet. The AMUL coin serves as a constant reminder to be mindful in every decision to bring forth the absolute best outcomes. With this coin in your wallet, your digital guardian angel is always by your side!
+                </p>
+                <a href="#" class="btn-portal" onclick="switchTab('seed')">Enter Portal</a>
+            </div>
+            <div class="hero-avatar">
+                <div class="avatar-circle">
+                    <span>AMULETO COIN</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Box -->
+        <section class="interactive-box">
+            <div class="tab-navigation">
+                <button class="tab-btn active" id="btn-seed" onclick="switchTab('seed')">Seed Round</button>
+                <button class="tab-btn" id="btn-presale" onclick="switchTab('presale')">Presale chia 3 vòng</button>
+            </div>
+
+            <!-- Tab 1: Seed Round -->
+            <div id="content-seed" class="tab-content active">
+                <div class="tab-title">Spiritual Seed Round</div>
+                <div class="tab-price">1 AMUL = 0.0100 USD</div>
+                
+                <div class="currency-selectors">
+                    <button class="currency-btn active" id="seed-bnb" onclick="selectCurrency('seed', 'BNB')">Buy with BNB</button>
+                    <button class="currency-btn" id="seed-usdt" onclick="selectCurrency('seed', 'USDT')">Buy with USDT</button>
+                </div>
+
+                <div class="input-group">
+                    <label id="label-seed">AMOUNT IN BNB YOU PAY</label>
+                    <input type="number" id="input-seed" placeholder="0.0" value="0.05" step="0.01">
+                </div>
+
+                <button class="btn-connect" id="btn-connect-seed" onclick="handleWalletAction('seed')">Connect Wallet</button>
+
+                <div class="direct-send">
+                    <p>Hoặc mua bằng cách chuyển thẳng vào ví nhận tiền của dự án:</p>
+                    <div class="wallet-address">0x1234567890ABCDEF1234567890ABCDEF12345678</div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Presale Portal -->
+            <div id="content-presale" class="tab-content">
+                <div class="tab-title">Presale Portal</div>
+                
+                <div class="stages-container">
+                    <div class="stage-box active">
+                        <div class="stage-title">Vòng 1</div>
+                        <div style="color: #888;">0.015 USD</div>
+                        <div class="stage-status">Đang mở</div>
+                    </div>
+                    <div class="stage-box">
+                        <div class="stage-title">Vòng 2</div>
+                        <div style="color: #888;">0.020 USD</div>
+                        <div class="stage-status" style="color: #666;">Kế tiếp</div>
+                    </div>
+                    <div class="stage-box">
+                        <div class="stage-title">Vòng 3</div>
+                        <div style="color: #888;">0.025 USD</div>
+                        <div class="stage-status" style="color: #666;">Kế tiếp</div>
+                    </div>
+                </div>
+
+                <div class="currency-selectors">
+ <!-- Official Smart Contract Box -->
+        <div class="contract-box">
+            <span>OFFICIAL AMUL SMART CONTRACT</span>
+            <div class="contract-address">0x2eec7122aaaEE161011CC2462534567812EFF261</div>
+        </div>
+
+    </div> <!-- Đóng thẻ Container chính -->
+
+    <footer>
+        <div class="disclaimer">
+            LEGAL DISCLAIMER AND TERMS OF USE: AMUL is a spiritual memecoin created for entertainment and mindful community engagement purposes only. It holds no intrinsic financial value and promises no financial returns. Cryptocurrency investments are highly volatile; please conduct your own research before participating. By purchasing, you agree that you are accessing a decentralized utility token and hold the creators harmless from any market fluctuations.
+        </div>
+    </footer>
+
+    <script>
+        // CẤU HÌNH VÍ NHẬN TIỀN DỰ ÁN CỦA BẠN TẠI ĐÂY
+        const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
+        const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
+        const USDT_CONTRACT_BSC = "0x55d398326f99059fF775485246999027B3197955";
+
+        let userAccount = null;
+        let selectedCurrency = { seed: 'BNB', presale: 'BNB' };
+
+        function switchTab(tabName) {
+            document.getElementById('content-seed').classList.remove('active');
+            document.getElementById('content-presale').classList.remove('active');
+            document.getElementById('btn-seed').classList.remove('active');
+            document.getElementById('btn-presale').classList.remove('active');
+
+            if(tabName === 'seed') {
+                document.getElementById('content-seed').classList.add('active');
+                document.getElementById('btn-seed').classList.add('active');
+            } else if(tabName === 'presale') {
+                document.getElementById('content-presale').classList.add('active');
+                document.getElementById('btn-presale').classList.add('active');
+            }
+            document.querySelector('.interactive-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function selectCurrency(tab, currency) {
+            selectedCurrency[tab] = currency;
+            document.getElementById(`${tab}-bnb`).classList.remove('active');
+            document.getElementById(`${tab}-usdt`).classList.remove('active');
+            document.getElementById(`${tab}-${currency.toLowerCase()}`).classList.add('active');
+            document.getElementById(`label-${tab}`).innerText = `AMOUNT IN ${currency} YOU PAY`;
+            document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.05' : '20';
+        }
+
+        // HÀM GỌI VÍ CHUẨN INTERNET - HỖ TRỢ ĐA NỀN TẢNG (METAMASK / TRUST WALLET)
+        async function handleWalletAction(tab) {
+            let ethProvider = null;
+
+            // Kiểm tra nhà cung cấp trên môi trường web (chỉ chạy khi được host trên server http/https)
+            if (window.trustwallet) {
+                ethProvider = window.trustwallet;
+            } else if (window.ethereum) {
+                ethProvider = window.ethereum;
+                // Nếu người dùng cài cả 2 ví trên trình duyệt, ưu tiên chọn Trust Wallet
+                if (window.ethereum.providers && window.ethereum.providers.length) {
+                    ethProvider = window.ethereum.providers.find(p => p.isTrust) || window.ethereum.providers[0];
+                }
+            }
+
+            if (!ethProvider) {
+                alert("Không tìm thấy ví mở rộng Web3! Vui lòng cài đặt Trust Wallet hoặc MetaMask.");
+                return;
+            }
+
+            if (!userAccount) {
+                try {
+                    // Gọi ví chuẩn bảo mật RPC request công nghệ mới
+                    const accounts = await ethProvider.request({ method: 'eth_requestAccounts' });
+                    
+                    if (accounts && accounts.length > 0) {
+                        userAccount = accounts[0]; // Lấy địa chỉ ví đang chọn
+                        
+                        const shortAddress = userAccount.substring(0, 6) + "..." + userAccount.substring(userAccount.length - 4);
+                        
+                        const btnSeed = document.getElementById('btn-connect-seed');
+                        const btnPresale = document.getElementById('btn-connect-presale');
+                        
+                        btnSeed.innerText = `Buy Token (${shortAddress})`;
+                        btnSeed.classList.add('connected');
+                        btnPresale.innerText = `Buy Token (${shortAddress})`;
+                        btnPresale.classList.add('connected');
+                        
+                        alert("Kết nối ví Web3 thành công!");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Kết nối ví thất bại. Vui lòng thử lại.");
+                }
+            } else {
+                // Xử lý gửi giao dịch thông minh sau khi đã kết nối ví
+                const amount = document.getElementById(`input-${tab}`).value;
+                if (!amount || amount <= 0) {
+                    alert("Vui lòng nhập số lượng hợp lệ.");
+                    return;
+                }
+
+                const targetWallet = tab === 'seed' ? PROJECT_WALLET_SEED : PROJECT_WALLET_PRESALE;
+                const currency = selectedCurrency[tab];
+
+                try {
+                    const provider = new ethers.BrowserProvider(ethProvider);
+                    const signer = await provider.getSigner();
+
+                    if (currency === 'BNB') {
+                        // Kịch bản gửi BNB trực tiếp
+                        const tx = await signer.sendTransaction({
+                            to: targetWallet,
+                            value: ethers.parseEther(amount)
+                        });
+                        alert(`Giao dịch BNB thành công! Hash: ${tx.hash}`);
+                    } else {
+                        // Kịch bản gửi token USDT (Mạng BEP-20)
+                        const usdtAbi = ["function transfer(address to, uint256 value) public returns (bool)"];
+                        const contract = new ethers.Contract(USDT_CONTRACT_BSC, usdtAbi, signer);
+                        const parsedAmount = ethers.parseUnits(amount, 18); // USDT BSC sử dụng số thập phân 18 lũy thừa
+                        const tx = await contract.transfer(targetWallet, parsedAmount);
+                        alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Giao dịch không thành công. Hãy chắc chắn ví của bạn đang để mạng BNB Chain và có đủ số dư.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
