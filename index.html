@@ -491,7 +491,7 @@
             </div>
         </section>
 
-        <!-- BẢNG CHỌN VÍ POPUP POPUP (Mặc định ẩn, chỉ hiện khi gọi) -->
+        <!-- BẢNG CHỌN VÍ POPUP (Mặc định ẩn, chỉ hiện khi gọi) -->
         <div class="modal-overlay" id="walletModalOverlay">
             <div class="wallet-modal">
                 <button class="modal-close" onclick="closeWalletModal()">&times;</button>
@@ -508,7 +508,7 @@
                 </button>
             </div>
         </div>
- <!-- Official Smart Contract Box -->
+   <!-- Official Smart Contract Box -->
         <div class="contract-box">
             <span>OFFICIAL $AMUL SMART CONTRACT</span>
             <div class="contract-address">0x2eec7122aaaEE161011CC2462534567812EFF261</div>
@@ -564,7 +564,7 @@
                     provider = window.ethereum;
                     // Lọc trường hợp cài cả 2 ví trùng nhau, chọn luồng gốc MetaMask
                     if (window.ethereum.providers && window.ethereum.providers.length) {
-                        provider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+                        provider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers;
                     }
                 } else {
                     alert("Không tìm thấy ứng dụng hoặc tiện ích MetaMask!");
@@ -582,7 +582,7 @@
             try {
                 const accounts = await ethProvider.request({ method: 'eth_requestAccounts' });
                 if (accounts && accounts.length > 0) {
-                    userAccount = accounts[0];
+                    userAccount = accounts[0]; // Lấy địa chỉ ví đầu tiên dưới dạng chuỗi kí tự
                     activeProviderSource = ethProvider;
 
                     // Ép buộc chuyển ví sang đúng mạng BSC
@@ -718,6 +718,29 @@
                 const targetWallet = tab === 'seed' ? PROJECT_WALLET_SEED : PROJECT_WALLET_PRESALE;
                 const currency = selectedCurrency[tab];
 
-                try {
+                   try {
                     const provider = new ethers.BrowserProvider(activeProviderSource);
                     const signer = await provider.getSigner();
+
+                    if (currency === 'BNB') {
+                        const tx = await signer.sendTransaction({
+                            to: targetWallet,
+                            value: ethers.parseEther(amount)
+                        });
+                        alert(`Giao dịch BNB thành công! Hash: ${tx.hash}`);
+                    } else {
+                        const usdtAbi = ["function transfer(address to, uint256 value) public returns (bool)"];
+                        const contract = new ethers.Contract(USDT_CONTRACT_BSC, usdtAbi, signer);
+                        const parsedAmount = ethers.parseUnits(amount, 18);
+                        const tx = await contract.transfer(targetWallet, parsedAmount);
+                        alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Giao dịch thất bại hoặc bị hủy bỏ.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
