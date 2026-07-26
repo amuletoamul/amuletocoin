@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+html<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMULETO - The Eternal Guardian Coin</title>
-    <!-- Nhúng thư viện Ethers.js v6 kết nối blockchain bảo mật -->
+    <!-- Nhúng thư viện Ethers.js v6 chuẩn kết nối blockchain -->
     <script src="https://cloudflare.com"></script>
     <style>
         * {
@@ -21,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* Thanh Header nâng cấp nút kết nối phía trên cùng */
         header {
             display: flex;
             justify-content: space-between;
@@ -62,7 +61,6 @@
             color: #00ff88;
         }
 
-        /* Nút kết nối / Ngắt kết nối trên Header */
         .btn-header-connect {
             background-color: #00e676;
             color: #000000;
@@ -162,8 +160,7 @@
             font-size: 1.1rem;
             letter-spacing: 2px;
         }
-
-        .interactive-box {
+.interactive-box {
             background-color: #0d0d0d;
             border: 1px solid #1a1a1a;
             border-radius: 16px;
@@ -376,7 +373,6 @@
             text-align: justify;
         }
 
-        /* CSS BẢNG CHỌN VÍ POPUP WINDOWS */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -389,7 +385,93 @@
             align-items: center;
             z-index: 2000;
             opacity: 0;
- <!-- Header Navigation tích hợp nút Đa năng Kết nối/Ngắt kết nối -->
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .wallet-modal {
+            background-color: #0d0d0d;
+            border: 1px solid #222222;
+            width: 90%;
+            max-width: 380px;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: #fff; }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .wallet-option-btn {
+            width: 100%;
+            background-color: #151515;
+            border: 1px solid #222222;
+            padding: 14px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .wallet-option-btn:hover {
+            border-color: #00e676;
+            background-color: rgba(0, 230, 118, 0.05);
+        }
+
+        .wallet-icon-mock {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background-color: #333;
+            display: inline-block;
+        }
+
+        @media (max-width: 992px) {
+            header { padding: 15px 5%; }
+            .nav-container { gap: 15px; }
+            nav a { font-size: 0.85rem; margin-left: 10px; }
+            .container { padding-top: 120px; }
+            .hero-section { flex-direction: column; text-align: center; gap: 40px; }
+            .hero-text p { text-align: center; margin: 0 auto 30px; }
+            .hero-avatar { order: -1; }
+            .avatar-circle { width: 260px; height: 260px; }
+            .hero-text h1, .hero-text h2 { font-size: 2.2rem; }
+            .stages-container { grid-template-columns: 1fr; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
     <header>
         <div class="logo">AMULETO AMUL</div>
         <div class="nav-container">
@@ -403,7 +485,7 @@
     </header>
 
     <div class="container">
-        <!-- Hero Section -->
+ <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-text">
                 <h1>The Eternal Guardian Coin</h1>
@@ -508,7 +590,7 @@
                 </button>
             </div>
         </div>
-   <!-- Official Smart Contract Box -->
+        <!-- Official Smart Contract Box -->
         <div class="contract-box">
             <span>OFFICIAL $AMUL SMART CONTRACT</span>
             <div class="contract-address">0x2eec7122aaaEE161011CC2462534567812EFF261</div>
@@ -522,7 +604,7 @@
         </div>
     </footer>
 
-    <!-- Khối xử lý Logic JavaScript Web3 Đa ví Nâng cao -->
+    <!-- Khối xử lý Logic JavaScript Web3 Đa ví Nâng nâng cao -->
     <script>
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
@@ -536,7 +618,6 @@
         // 1. Quản lý Đóng/Mở Bảng chọn Ví (Popup Modal)
         function openWalletModal() {
             if (userAccount) {
-                // Nếu ví đã kết nối, bấm nút trên Header sẽ kích hoạt tính năng Ngắt kết nối (Disconnect)
                 disconnectWallet();
             } else {
                 document.getElementById('walletModalOverlay').classList.add('active');
@@ -562,7 +643,6 @@
             } else if (walletType === 'metamask') {
                 if (window.ethereum) {
                     provider = window.ethereum;
-                    // Lọc trường hợp cài cả 2 ví trùng nhau, chọn luồng gốc MetaMask
                     if (window.ethereum.providers && window.ethereum.providers.length) {
                         provider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers;
                     }
@@ -582,17 +662,13 @@
             try {
                 const accounts = await ethProvider.request({ method: 'eth_requestAccounts' });
                 if (accounts && accounts.length > 0) {
-                    userAccount = accounts[0]; // Lấy địa chỉ ví đầu tiên dưới dạng chuỗi kí tự
+                    userAccount = accounts[0]; 
                     activeProviderSource = ethProvider;
 
-                    // Ép buộc chuyển ví sang đúng mạng BSC
                     await ensureBscNetwork(activeProviderSource);
-
-                    // Đồng bộ trạng thái hiển thị trên toàn trang web lập tức
                     updateUIState();
                     alert("Kết nối ví thành công!");
 
-                    // Lắng nghe sự kiện thay đổi ví từ người dùng để tự động làm mới dApp
                     activeProviderSource.on('accountsChanged', (newAccounts) => {
                         if (newAccounts.length === 0) {
                             disconnectWallet();
@@ -613,12 +689,10 @@
             userAccount = null;
             activeProviderSource = null;
             
-            // Phục hồi lại nút bấm trên Header thành trạng thái nguyên bản
             const btnHeader = document.getElementById('btn-header');
             btnHeader.innerText = "Connect Wallet";
             btnHeader.classList.remove('connected');
 
-            // Tự động làm mới, xóa địa chỉ cũ kẹt tại các nút mua ở giữa trang web
             const btnSeed = document.getElementById('btn-connect-seed');
             const btnPresale = document.getElementById('btn-connect-presale');
             
@@ -635,12 +709,10 @@
             if (!userAccount) return;
             const shortAddress = userAccount.substring(0, 6) + "..." + userAccount.substring(userAccount.length - 4);
 
-            // Đổi nút Header thành nút bấm Disconnect màu đỏ chủ động
             const btnHeader = document.getElementById('btn-header');
             btnHeader.innerText = `Disconnect (${shortAddress})`;
             btnHeader.classList.add('connected');
 
-            // Cập nhật các nút mua ở hộp dApp ở giữa trang
             document.getElementById('btn-connect-seed').innerText = `Buy Token (${shortAddress})`;
             document.getElementById('btn-connect-seed').classList.add('connected');
             document.getElementById('btn-connect-presale').innerText = `Buy Token (${shortAddress})`;
@@ -705,10 +777,8 @@
         // 7. Quản lý hành động bấm nút chính ở khung tương tác giữa trang
         async function handleMainAction(tab) {
             if (!userAccount) {
-                // Nếu chưa kết nối, kích hoạt mở bảng chọn ví Popup
                 openWalletModal();
             } else {
-                // Nếu ví đã kết nối từ trước, thực thi ngay giao dịch thanh toán
                 const amount = document.getElementById(`input-${tab}`).value;
                 if (!amount || amount <= 0) {
                     alert("Vui lòng nhập số lượng hợp lệ.");
@@ -718,7 +788,7 @@
                 const targetWallet = tab === 'seed' ? PROJECT_WALLET_SEED : PROJECT_WALLET_PRESALE;
                 const currency = selectedCurrency[tab];
 
-                   try {
+                try {
                     const provider = new ethers.BrowserProvider(activeProviderSource);
                     const signer = await provider.getSigner();
 
@@ -736,11 +806,14 @@
                         alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
                     }
                 } catch (error) {
-                    console.error(error);
-                    alert("Giao dịch thất bại hoặc bị hủy bỏ.");
-                }
-            }
+            console.error(error);
+            alert("Giao dịch thất bại hoặc bị hủy bỏ.");
         }
+    }
+}
+</script>
+</body>
+</html>
     </script>
 </body>
 </html>
