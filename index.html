@@ -1,10 +1,10 @@
-html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMULETO - The Eternal Guardian Coin</title>
-    <!-- Nhúng thư viện Ethers.js v6 chuẩn kết nối blockchain -->
+    <!-- Nhúng thư viện Ethers.js v6 kết nối blockchain bảo mật -->
     <script src="https://cloudflare.com"></script>
     <style>
         * {
@@ -160,7 +160,7 @@ html<!DOCTYPE html>
             font-size: 1.1rem;
             letter-spacing: 2px;
         }
-.interactive-box {
+ .interactive-box {
             background-color: #0d0d0d;
             border: 1px solid #1a1a1a;
             border-radius: 16px;
@@ -373,13 +373,14 @@ html<!DOCTYPE html>
             text-align: justify;
         }
 
+        /* CSS MODAL CHỌN VÍ NÂNG CẤP CHUẨN MỚI */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -398,54 +399,56 @@ html<!DOCTYPE html>
             background-color: #0d0d0d;
             border: 1px solid #222222;
             width: 90%;
-            max-width: 380px;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             text-align: center;
             position: relative;
         }
 
         .modal-close {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             background: none;
             border: none;
             color: #888;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
+            transition: color 0.2s;
         }
 
         .modal-close:hover { color: #fff; }
 
         .modal-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
         }
 
         .wallet-option-btn {
             width: 100%;
             background-color: #151515;
             border: 1px solid #222222;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
             color: white;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
+            gap: 20px;
             transition: all 0.2s ease;
         }
 
         .wallet-option-btn:hover {
             border-color: #00e676;
-            background-color: rgba(0, 230, 118, 0.05);
+            background-color: rgba(0, 230, 118, 0.06);
+            transform: scale(1.02);
         }
 
         .wallet-icon-mock {
@@ -590,13 +593,13 @@ html<!DOCTYPE html>
                 </button>
             </div>
         </div>
-        <!-- Official Smart Contract Box -->
+<!-- Official Smart Contract Box -->
         <div class="contract-box">
             <span>OFFICIAL $AMUL SMART CONTRACT</span>
             <div class="contract-address">0x2eec7122aaaEE161011CC2462534567812EFF261</div>
         </div>
 
-    </div> <!-- Đóng thẻ Container -->
+    </div> <!-- Đóng thẻ Container chính -->
 
     <footer>
         <div class="disclaimer">
@@ -604,7 +607,7 @@ html<!DOCTYPE html>
         </div>
     </footer>
 
-    <!-- Khối xử lý Logic JavaScript Web3 Đa ví Nâng nâng cao -->
+    <!-- Khối xử lý Logic JavaScript Web3 Đa ví Nâng cao -->
     <script>
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
@@ -746,6 +749,32 @@ html<!DOCTYPE html>
         }
 
         async function ensureBscNetwork(ethProvider) {
+             try {
+                    const provider = new ethers.BrowserProvider(activeProviderSource);
+                    const signer = await provider.getSigner();
+
+                    if (currency === 'BNB') {
+                        const tx = await signer.sendTransaction({
+                            to: targetWallet,
+                            value: ethers.parseEther(amount)
+                        });
+                        alert(`Giao dịch BNB thành công! Hash: ${tx.hash}`);
+                    } else {
+                        const usdtAbi = ["function transfer(address to, uint256 value) public returns (bool)"];
+                        const contract = new ethers.Contract(USDT_CONTRACT_BSC, usdtAbi, signer);
+                        const parsedAmount = ethers.parseUnits(amount, 18);
+                        const tx = await contract.transfer(targetWallet, parsedAmount);
+                        alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Giao dịch thất bại hoặc bị hủy bỏ.");
+                }
+            }
+        }
+
+        // 8. Hàm ép buộc ví kiểm tra và tự động cấu hình/chuyển mạng sang BNB Chain (BSC)
+        async function ensureBscNetwork(ethProvider) {
             try {
                 await ethProvider.request({
                     method: 'wallet_switchEthereumChain',
@@ -773,15 +802,20 @@ html<!DOCTYPE html>
                 return false;
             }
         }
-
-        // 7. Quản lý hành động bấm nút chính ở khung tương tác giữa trang
+ // 9. Hàm quản lý hành động bấm nút mua chính ở khung tương tác giữa trang
         async function handleMainAction(tab) {
             if (!userAccount) {
                 openWalletModal();
             } else {
+                const networkVerified = await ensureBscNetwork(activeProviderSource);
+                if (!networkVerified) {
+                    alert("Vui lòng chuyển ví sang mạng BNB Chain để thực hiện giao dịch.");
+                    return;
+                }
+
                 const amount = document.getElementById(`input-${tab}`).value;
                 if (!amount || amount <= 0) {
-                    alert("Vui lòng nhập số lượng hợp lệ.");
+                    alert("Vui lòng nhập số lượng thanh toán hợp lệ.");
                     return;
                 }
 
@@ -806,12 +840,11 @@ html<!DOCTYPE html>
                         alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
                     }
                 } catch (error) {
-            console.error(error);
-            alert("Giao dịch thất bại hoặc bị hủy bỏ.");
+                    console.error(error);
+                    alert("Giao dịch thất bại hoặc đã bị huỷ bỏ.");
+                }
+            }
         }
-    }
-}
-</script>
+    </script>
 </body>
 </html>
-   
