@@ -615,8 +615,8 @@
             LEGAL DISCLAIMER AND TERMS OF USE: AMUL is a spiritual memecoin created for entertainment and mindful community engagement purposes only. It holds no intrinsic financial value and promises no financial returns. Cryptocurrency investments are highly volatile; please conduct your own research before participating. By purchasing, you agree that you are accessing a decentralized utility token and hold the creators harmless from any market fluctuations.
         </div>
     </footer>
-
-    <!-- Tập lệnh xử lý dApp Đa ví Nội bộ siêu mượt mà -->
+    <!-- Nhúng thư viện kết nối đa ví toàn cầu thông qua cổng WalletConnect kết hợp QRCode -->
+    <script src="https://jsdelivr.net"></script>
     <script>
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
@@ -627,7 +627,6 @@
         let activeProviderSource = null;
         let selectedCurrency = { seed: 'BNB', presale: 'BNB' };
 
-        // 1. Quản lý Đóng/Mở Bảng chọn Ví (Popup Modal)
         function openWalletModal() {
             if (userAccount) {
                 disconnectWallet();
@@ -640,31 +639,42 @@
             document.getElementById('walletModalOverlay').classList.remove('active');
         }
 
-        // 2. Hàm định tuyến và bắt tín hiệu của từng ứng dụng ví cụ thể
+        // THUẬT TOÁN ĐA NĂNG: Nếu máy tính có Extension thì bật Extension, nếu không có sẽ tự động mở liên kết quét mã QR hoặc Deeplink
         async function selectWalletProvider(walletType) {
             closeWalletModal();
             let provider = null;
 
             if (walletType === 'trustwallet') {
                 provider = window.trustwallet || (window.ethereum && window.ethereum.isTrust ? window.ethereum : null);
+                if (!provider) {
+                    window.open("https://trustwallet.com" + encodeURIComponent(window.location.href), '_blank');
+                    return;
+                }
             } else if (walletType === 'metamask') {
-                if (window.ethereum) {
-                    provider = window.ethereum.providers ? window.ethereum.providers.find(p => p.isMetaMask) : window.ethereum;
+                provider = window.ethereum?.providers ? window.ethereum.providers.find(p => p.isMetaMask) : window.ethereum;
+                if (!provider || !provider.isMetaMask) {
+                    window.open("https://app.link" + window.location.host + window.location.pathname, '_blank');
+                    return;
                 }
             } else if (walletType === 'okxwallet') {
                 provider = window.okxwallet;
+                if (!provider) {
+                    window.open("https://okx.com", '_blank');
+                    return;
+                }
             } else if (walletType === 'binance') {
                 provider = window.binance || window.ethereum;
+                if (!provider) {
+                    alert("Vui lòng mở trang web này bên trong Trình duyệt dApp của ứng dụng Binance Wallet trên điện thoại.");
+                    return;
+                }
             }
 
             if (provider) {
                 await connectWalletProcess(provider);
-            } else {
-                alert("Không tìm thấy tiện ích mở rộng của ví này trên trình duyệt! Vui lòng cài đặt hoặc mở khóa ví trước.");
             }
         }
 
-        // 3. Tiến trình yêu cầu ví cấp quyền và kích hoạt tài khoản
         async function connectWalletProcess(ethProvider) {
             try {
                 const accounts = await ethProvider.request({ method: 'eth_requestAccounts' });
@@ -687,10 +697,9 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert("Người dùng từ chối kết nối hoặc xảy ra lỗi thiết lập.");
+                alert("Kết nối ví thất bại.");
             }
         }
- // 4. Hàm chủ động Ngắt kết nối (Disconnect) và Tự động làm mới giao diện về gốc
         function disconnectWallet() {
             userAccount = null;
             activeProviderSource = null;
@@ -707,7 +716,6 @@
             alert("Đã ngắt kết nối ví thành công!");
         }
 
-        // 5. Cập nhật giao diện đồng bộ khi đổi trạng thái hành động
         function updateUIState() {
             if (!userAccount) return;
             const shortAddress = userAccount.substring(0, 6) + "..." + userAccount.substring(userAccount.length - 4);
@@ -722,7 +730,6 @@
             document.getElementById('btn-connect-presale').classList.add('connected');
         }
 
-        // 6. Các hàm bổ trợ cấu trúc Tab mua bán mặc định
         function switchTab(tabName) {
             document.getElementById('content-seed').classList.remove('active');
             document.getElementById('content-presale').classList.remove('active');
@@ -748,7 +755,6 @@
             document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.05' : '20';
         }
 
-        // 7. Hàm kiểm tra và tự động cấu hình/chuyển mạng sang BNB Chain (BSC)
         async function ensureBscNetwork(ethProvider) {
             try {
                 await ethProvider.request({
@@ -778,7 +784,6 @@
             }
         }
 
-        // 8. Hàm quản lý hành động bấm nút chính ở khung tương tác giữa trang
         async function handleMainAction(tab) {
             if (!userAccount) {
                 openWalletModal();
