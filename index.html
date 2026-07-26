@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMULETO - The Eternal Guardian Coin</title>
     
-    <!-- Nhúng thư viện Ethers.js v6 -->
+    <!-- Nhúng thư viện Ethers.js v6 chuẩn kết nối blockchain -->
     <script src="https://cloudflare.com"></script>
     
-    <!-- Nhúng siêu thư viện WalletConnect AppKit điều khiển kết nối 100+ loại ví toàn cầu -->
-    <script type="module">
-        import { createWeb3Modal, defaultEvmConfig } from 'https://esm.sh';
-        window.createWeb3Modal = createWeb3Modal;
-        window.defaultEvmConfig = defaultEvmConfig;
-    </script>
+    <!-- Nhúng thư viện AppKit / Web3Modal phiên bản tĩnh độc lập chống bị GitHub chặn -->
+    <script src="https://jsdelivr.net"></script>
 
     <style>
         * {
@@ -169,7 +165,7 @@
             font-size: 1.1rem;
             letter-spacing: 2px;
         }
- .interactive-box {
+  .interactive-box {
             background-color: #0d0d0d;
             border: 1px solid #1a1a1a;
             border-radius: 16px;
@@ -411,7 +407,7 @@
     </header>
 
     <div class="container">
- <!-- Hero Section -->
+  <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-text">
                 <h1>The Eternal Guardian Coin</h1>
@@ -512,9 +508,8 @@
         </div>
     </footer>
 
-    <!-- Khối mã xử lý kết nối siêu đa ví hệ thống -->
-    <script type="module">
-        // Khởi tạo các thông số ví nhận tiền dự án
+    <!-- Khối mã xử lý kết nối siêu đa ví hệ thống bằng Bundle tĩnh an toàn -->
+    <script>
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
         const USDT_CONTRACT_BSC = "0x55d398326f99059fF775485246999027B3197955";
@@ -539,15 +534,17 @@
             icons: ['https://githubusercontent.com']
         };
 
-        // Kích hoạt bộ điều khiển cổng chọn ví v6 chuẩn ngành Web3
+        // Kích hoạt bộ điều khiển cổng chọn ví tĩnh (Bundle Global Object) chống lỗi kẹt module
+        const { createWeb3Modal, defaultWalletConnectConfig } = window.Web3ModalCore;
+
         const modal = createWeb3Modal({
-            ethersConfig: defaultEvmConfig({ 
-                metadata, 
-                defaultChainId: BSC_CHAIN_ID, 
-                enableEIP6963: true, 
+            ethersConfig: {
+                metadata,
+                defaultChainId: BSC_CHAIN_ID,
+                enableEIP6963: true,
                 enableInjected: true,
                 enableCoinbase: true
-            }),
+            },
             chains: [bscChain],
             projectId,
             enableAnalytics: false,
@@ -556,8 +553,8 @@
 
         let userAccount = null;
         let selectedCurrency = { seed: 'BNB', presale: 'BNB' };
- // Đồng bộ các hàm điều hướng Tab và loại tiền vào Window để HTML nhận diện
-        window.switchTab = function(tabName) {
+ // Các hàm chuyển đổi giao diện Tab và loại tiền thanh toán
+        function switchTab(tabName) {
             document.getElementById('content-seed').classList.remove('active');
             document.getElementById('content-presale').classList.remove('active');
             document.getElementById('btn-seed').classList.remove('active');
@@ -571,28 +568,28 @@
                 document.getElementById('btn-presale').classList.add('active');
             }
             document.querySelector('.interactive-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
+        }
 
-        window.selectCurrency = function(tab, currency) {
+        function selectCurrency(tab, currency) {
             selectedCurrency[tab] = currency;
             document.getElementById(`${tab}-bnb`).classList.remove('active');
             document.getElementById(`${tab}-usdt`).classList.remove('active');
             document.getElementById(`${tab}-${currency.toLowerCase()}`).classList.add('active');
             document.getElementById(`label-${tab}`).innerText = `AMOUNT IN ${currency} YOU PAY`;
             document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.05' : '20';
-        };
+        }
 
-        // Quản lý việc Đóng/Mở bảng chọn ví toàn cầu (Popup AppKit)
-        window.openWalletModal = async function() {
+        // Quản lý việc Đóng/Mở bảng chọn ví toàn cầu (Popup Web3Modal)
+        async function openWalletModal() {
             if (modal.getIsConnected()) {
                 await modal.disconnect();
                 handleDisconnectUI();
             } else {
                 await modal.open();
             }
-        };
+        }
 
-        // Theo dõi trạng thái ví từ thư viện WalletConnect để tự động cập nhật giao diện
+        // Lắng nghe trạng thái từ cổng Web3Modal để tự động đồng bộ nút bấm
         modal.subscribeState(state => {
             const isConnected = modal.getIsConnected();
             const address = modal.getAddress();
@@ -623,8 +620,8 @@
             document.getElementById('btn-connect-presale').classList.remove('connected');
         }
 
-        // Lệnh thực thi mua token BNB/USDT thông qua bất kỳ ví nào đã được chọn
-        window.handleMainAction = async function(tab) {
+        // Thực thi giao dịch BNB/USDT gửi tiền mua Token dự án
+        async function handleMainAction(tab) {
             if (!modal.getIsConnected()) {
                 await modal.open();
                 return;
@@ -640,13 +637,13 @@
             const currency = selectedCurrency[tab];
 
             try {
-                // Kiểm tra xem ví đang kết nối có đúng mạng BNB Chain không, nếu sai yêu cầu đổi mạng
                 const walletProvider = modal.getWalletProvider();
                 const provider = new ethers.BrowserProvider(walletProvider);
                 const network = await provider.getNetwork();
                 
+                // Ép kiểm tra mạng lưới BNB Chain, nếu sai yêu cầu chuyển đổi mạng tự động
                 if (Number(network.chainId) !== BSC_CHAIN_ID) {
-                    alert("Vui lòng phê duyệt chuyển đổi mạng sang BNB Chain trên ứng dụng ví của bạn.");
+                    alert("Vui lòng phê duyệt chuyển đổi sang mạng BNB Chain trên ứng dụng ví.");
                     await walletProvider.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: '0x38' }]
@@ -673,7 +670,7 @@
                 console.error(error);
                 alert("Giao dịch thất bại hoặc đã bị huỷ bỏ.");
             }
-        };
+        }
     </script>
 </body>
 </html>
