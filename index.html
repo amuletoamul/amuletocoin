@@ -606,9 +606,8 @@
             LEGAL DISCLAIMER AND TERMS OF USE: AMUL is a spiritual memecoin created for entertainment and mindful community engagement purposes only. It holds no intrinsic financial value and promises no financial returns. Cryptocurrency investments are highly volatile; please conduct your own research before participating. By purchasing, you agree that you are accessing a decentralized utility token and hold the creators harmless from any market fluctuations.
         </div>
     </footer>
-
-    <!-- Khối xử lý Logic JavaScript Web3 Đa ví Nâng cao -->
-    <script>
+ <script>
+        // CẤU HÌNH VÍ NHẬN TIỀN DỰ ÁN CỦA BẠN TẠI ĐÂY
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
         const USDT_CONTRACT_BSC = "0x55d398326f99059fF775485246999027B3197955";
@@ -631,7 +630,7 @@
             document.getElementById('walletModalOverlay').classList.remove('active');
         }
 
-        // 2. Hàm xử lý lựa chọn Ví đích danh từ người dùng
+        // 2. Hàm xử lý lựa chọn Ví đích danh từ người dùng khi bấm Popup
         async function selectWalletProvider(walletType) {
             closeWalletModal();
             let provider = null;
@@ -696,13 +695,10 @@
             btnHeader.innerText = "Connect Wallet";
             btnHeader.classList.remove('connected');
 
-            const btnSeed = document.getElementById('btn-connect-seed');
-            const btnPresale = document.getElementById('btn-connect-presale');
-            
-            btnSeed.innerText = "Connect Wallet";
-            btnSeed.classList.remove('connected');
-            btnPresale.innerText = "Connect Wallet";
-            btnPresale.classList.remove('connected');
+            document.getElementById('btn-connect-seed').innerText = "Connect Wallet";
+            document.getElementById('btn-connect-seed').classList.remove('connected');
+            document.getElementById('btn-connect-presale').innerText = "Connect Wallet";
+            document.getElementById('btn-connect-presale').classList.remove('connected');
 
             alert("Đã ngắt kết nối ví thành công!");
         }
@@ -722,7 +718,7 @@
             document.getElementById('btn-connect-presale').classList.add('connected');
         }
 
-        // 6. Các hàm bổ trợ cấu trúc Tab mua bán mặc định
+        // 6. Các hàm bổ trợ cấu trúc Tab mua bán và chuyển đổi loại tiền BNB/USDT
         function switchTab(tabName) {
             document.getElementById('content-seed').classList.remove('active');
             document.getElementById('content-presale').classList.remove('active');
@@ -747,33 +743,7 @@
             document.getElementById(`label-${tab}`).innerText = `AMOUNT IN ${currency} YOU PAY`;
             document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.05' : '20';
         }
-
-        async function ensureBscNetwork(ethProvider) {
-             try {
-                    const provider = new ethers.BrowserProvider(activeProviderSource);
-                    const signer = await provider.getSigner();
-
-                    if (currency === 'BNB') {
-                        const tx = await signer.sendTransaction({
-                            to: targetWallet,
-                            value: ethers.parseEther(amount)
-                        });
-                        alert(`Giao dịch BNB thành công! Hash: ${tx.hash}`);
-                    } else {
-                        const usdtAbi = ["function transfer(address to, uint256 value) public returns (bool)"];
-                        const contract = new ethers.Contract(USDT_CONTRACT_BSC, usdtAbi, signer);
-                        const parsedAmount = ethers.parseUnits(amount, 18);
-                        const tx = await contract.transfer(targetWallet, parsedAmount);
-                        alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert("Giao dịch thất bại hoặc bị hủy bỏ.");
-                }
-            }
-        }
-
-        // 8. Hàm ép buộc ví kiểm tra và tự động cấu hình/chuyển mạng sang BNB Chain (BSC)
+  // 7. Hàm kiểm tra và tự động cấu hình/chuyển mạng sang BNB Chain (BSC)
         async function ensureBscNetwork(ethProvider) {
             try {
                 await ethProvider.request({
@@ -802,7 +772,8 @@
                 return false;
             }
         }
- // 9. Hàm quản lý hành động bấm nút mua chính ở khung tương tác giữa trang
+
+        // 8. Hàm quản lý hành động bấm nút mua chính ở khung tương tác giữa trang (Duy nhất 1 hàm sạch)
         async function handleMainAction(tab) {
             if (!userAccount) {
                 openWalletModal();
@@ -848,3 +819,4 @@
     </script>
 </body>
 </html>
+   
