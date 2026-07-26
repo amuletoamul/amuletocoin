@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMULETO - The Eternal Guardian Coin</title>
+    
     <!-- Nhúng thư viện Ethers.js v6 kết nối blockchain bảo mật -->
     <script src="https://cloudflare.com"></script>
+    
+    <!-- Nhúng bộ thư viện độc lập xuất bản bảng QR Code siêu liên kết vạn ví chuẩn toàn cầu -->
+    <script src="https://jsdelivr.net"></script>
+
     <style>
         * {
             margin: 0;
@@ -160,7 +165,7 @@
             font-size: 1.1rem;
             letter-spacing: 2px;
         }
- .interactive-box {
+.interactive-box {
             background-color: #0d0d0d;
             border: 1px solid #1a1a1a;
             border-radius: 16px;
@@ -259,7 +264,6 @@
             font-size: 1rem;
         }
 
-        /* Vùng hiển thị kết quả tính toán số lượng AMUL nhận được */
         .calculation-result {
             font-size: 0.85rem;
             color: #f1c40f;
@@ -383,6 +387,7 @@
             text-align: justify;
         }
 
+        /* CSS POPUP BẢNG CHỌN VÍ NỘI BỘ NÂNG CẤP SIÊU LIÊN KẾT */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -497,7 +502,7 @@
     </header>
 
     <div class="container">
- <!-- Hero Section -->
+<!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-text">
                 <h1>The Eternal Guardian Coin</h1>
@@ -533,10 +538,10 @@
 
                 <div class="input-group">
                     <label id="label-seed">AMOUNT IN BNB YOU PAY</label>
-                    <input type="number" id="input-seed" placeholder="0.0" value="0.05" step="0.01" oninput="calculateTokens('seed')">
+                    <!-- Thiết lập giá trị trị mặc định ban đầu là 0.01 BNB (~6 USD) đạt mức tối thiểu bán -->
+                    <input type="number" id="input-seed" placeholder="0.0" value="0.01" step="0.001" oninput="calculateTokens('seed')">
                 </div>
-                <!-- Dòng thông báo số lượng AMUL tự động cập nhật thời gian thực -->
-                <div class="calculation-result" id="calc-seed">Bạn sẽ nhận được: ~5,000 AMUL (Tối thiểu: 100 AMUL)</div>
+                <div class="calculation-result" id="calc-seed">Bạn sẽ nhận được: ~600 AMUL (Tối thiểu: 100 AMUL)</div>
 
                 <button class="btn-connect" id="btn-connect-seed" onclick="handleMainAction('seed')">Connect Wallet</button>
 
@@ -575,10 +580,10 @@
 
                 <div class="input-group">
                     <label id="label-presale">AMOUNT IN BNB YOU PAY</label>
-                    <input type="number" id="input-presale" placeholder="0.0" value="0.1" step="0.01" oninput="calculateTokens('presale')">
+                    <!-- Thiết lập giá trị mặc định ban đầu là 0.01 BNB (~6 USD) đạt mức tối thiểu bán -->
+                    <input type="number" id="input-presale" placeholder="0.0" value="0.01" step="0.001" oninput="calculateTokens('presale')">
                 </div>
-                <!-- Dòng thông báo số lượng AMUL tự động cập nhật thời gian thực -->
-                <div class="calculation-result" id="calc-presale">Bạn sẽ nhận được: ~10,000 AMUL (Tối thiểu: 100 AMUL)</div>
+                <div class="calculation-result" id="calc-presale">Bạn sẽ nhận được: ~400 AMUL (Tối thiểu: 100 AMUL)</div>
 
                 <button class="btn-connect" id="btn-connect-presale" onclick="handleMainAction('presale')">Connect Wallet</button>
 
@@ -589,7 +594,7 @@
             </div>
         </section>
 
-        <!-- BẢNG CHỌN VÍ POPUP NỘI BỘ -->
+        <!-- BẢNG CHỌN VÍ POPUP MỞ RỘNG SIÊU LIÊN KẾT CHUẨN QUỐC TẾ -->
         <div class="modal-overlay" id="walletModalOverlay">
             <div class="wallet-modal">
                 <button class="modal-close" onclick="closeWalletModal()">&times;</button>
@@ -603,6 +608,12 @@
                 <button class="wallet-option-btn" onclick="selectWalletProvider('metamask')">
                     <span class="wallet-icon-mock" style="background-color: #e67e22;"></span>
                     MetaMask🦊
+                </button>
+
+                <!-- SIÊU NÚT BẤM KẾT NỐI VẠN VÍ: OKX, Phantom, Binance Web3 Wallet, Bitget Wallet bằng QR Code / DeepLink -->
+                <button class="wallet-option-btn" onclick="selectWalletProvider('walletconnect')" style="border-color: rgba(0, 230, 118, 0.4); background-color: rgba(0, 230, 118, 0.02);">
+                    <span class="wallet-icon-mock" style="background-color: #00e676;"></span>
+                    WalletConnect / Khác 🌐
                 </button>
             </div>
         </div>
@@ -620,24 +631,43 @@
         </div>
     </footer>
 
-    <!-- Tập lệnh xử lý dApp Đa ví và Thuật toán Định giá Token thời gian thực -->
+    <!-- Khối mã xử lý kết nối siêu vạn ví hệ thống mới nhất -->
     <script>
         // CẤU HÌNH VÍ NHẬN TIỀN DỰ ÁN CỦA BẠN TẠI ĐÂY
         const PROJECT_WALLET_SEED = "0x1234567890ABCDEF1234567890ABCDEF12345678";
         const PROJECT_WALLET_PRESALE = "0x9876543210FEDCBA9876543210FEDCBA98765432";
         const USDT_CONTRACT_BSC = "0x55d398326f99059fF775485246999027B3197955";
         const BSC_CHAIN_ID_HEX = "0x38"; 
+        const BSC_CHAIN_ID_NUM = 56;
 
-        // CẤU HÌNH TỶ GIÁ VÀ HẠN MỨC TỐI THIỂU
-        const AMUL_MIN_BUY = 100; // Mua tối thiểu 100 AMUL
-        const BNB_PRICE_USD = 600; // Tỷ giá BNB giả định là 600 USD (Hệ thống tự nhân cấp số)
-        const TOKEN_PRICE = { seed: 0.0100, presale: 0.0150 }; // Giá token cho từng tab
+        // CẤU HÌNH TỶ GIÁ VÀ HẠN MỨC MUA TỐI THIỂU
+        const AMUL_MIN_BUY = 100; 
+        const BNB_PRICE_USD = 600; 
+        const TOKEN_PRICE = { seed: 0.0100, presale: 0.0150 }; 
 
         let userAccount = null;
         let activeProviderSource = null;
         let selectedCurrency = { seed: 'BNB', presale: 'BNB' };
+        let walletConnectModalInstance = null;
 
-        // THUẬT TOÁN TỰ ĐỘNG TÍNH TOÁN SỐ LƯỢNG AMUL THỜI GIAN THỰC
+        // Cổng kết nối đám mây công cộng chuẩn Web3 toàn cầu
+        const projectId = '84a0d9e767df56c382bf791334c98a31';
+
+        // Khởi tạo ngầm bộ điều khiển vạn ví WalletConnect dự phòng tĩnh
+        try {
+            if (window.Web3ModalCore) {
+                const { createWeb3Modal } = window.Web3ModalCore;
+                walletConnectModalInstance = createWeb3Modal({
+                    ethersConfig: { metadata: { name: 'AMULETO', url: window.location.origin }, defaultChainId: BSC_CHAIN_ID_NUM, enableInjected: false },
+                    chains: [{ chainId: BSC_CHAIN_ID_NUM, name: 'BNB Smart Chain', currency: 'BNB', explorerUrl: 'https://bscscan.com', rpcUrl: 'https://binance.org' }],
+                    projectId,
+                    enableAnalytics: false,
+                    themeMode: 'dark'
+                });
+            }
+        } catch(e) { console.error("Khởi tạo core QR kẹt:", e); }
+
+        // THUẬT TOÁN TỰ ĐỘNG TÍNH TOÁN SỐ LƯỢNG AMUL THEO THỜI GIAN THỰC
         function calculateTokens(tab) {
             const amountInput = document.getElementById(`input-${tab}`).value;
             const currency = selectedCurrency[tab];
@@ -647,7 +677,7 @@
             if (currency === 'BNB') {
                 totalUsd = amountInput * BNB_PRICE_USD;
             } else {
-                totalUsd = amountInput * 1; // USDT tương đương 1 USD
+                totalUsd = amountInput * 1; 
             }
             
             const expectedTokens = Math.floor(totalUsd / tokenPriceUsd);
@@ -655,22 +685,20 @@
             
             if (!amountInput || amountInput <= 0) {
                 resultDiv.innerText = `Bạn sẽ nhận được: ~0 AMUL (Tối thiểu: ${AMUL_MIN_BUY} AMUL)`;
-                resultDiv.style.color = '#ff3b30'; // Đổi sang màu đỏ cảnh báo nếu trống
+                resultDiv.style.color = '#ff3b30'; 
                 return expectedTokens;
             }
             
             resultDiv.innerText = `Bạn sẽ nhận được: ~${expectedTokens.toLocaleString()} AMUL (Tối thiểu: ${AMUL_MIN_BUY} AMUL)`;
             
-            // Đổi màu chữ động cảnh báo người mua nếu chưa đạt hạn mức tối thiểu 100 AMUL
             if (expectedTokens < AMUL_MIN_BUY) {
-                resultDiv.style.color = '#ff3b30'; // Màu đỏ cảnh báo
+                resultDiv.style.color = '#ff3b30'; 
             } else {
-                resultDiv.style.color = '#f1c40f'; // Màu vàng chuẩn của hệ thống
+                resultDiv.style.color = '#f1c40f'; 
             }
             return expectedTokens;
         }
 
-        // Quản lý Đóng/Mở Bảng chọn Ví (Popup Modal)
         function openWalletModal() {
             if (userAccount) {
                 disconnectWallet();
@@ -682,10 +710,28 @@
         function closeWalletModal() {
             document.getElementById('walletModalOverlay').classList.remove('active');
         }
-
+// Hàm định tuyến và bắt tín hiệu xử lý kết nối cho từng nhóm ví cụ thể
         async function selectWalletProvider(walletType) {
             closeWalletModal();
             let provider = null;
+
+            if (walletType === 'walletconnect') {
+                if (walletConnectModalInstance) {
+                    await walletConnectModalInstance.open();
+                    walletConnectModalInstance.subscribeState(state => {
+                        const isConnected = walletConnectModalInstance.getIsConnected();
+                        const address = walletConnectModalInstance.getAddress();
+                        if (isConnected && address) {
+                            userAccount = address;
+                            activeProviderSource = walletConnectModalInstance.getWalletProvider();
+                            updateUIState();
+                        }
+                    });
+                } else {
+                    alert("Cổng WalletConnect toàn cầu đang bận, vui lòng thử lại sau.");
+                }
+                return;
+            }
 
             if (walletType === 'trustwallet') {
                 provider = window.trustwallet || (window.ethereum && window.ethereum.isTrust ? window.ethereum : null);
@@ -698,10 +744,10 @@
             if (provider) {
                 await connectWalletProcess(provider);
             } else {
-                alert("Không tìm thấy tiện ích ví này! Hãy chắc chắn bạn đã cài đặt extension trên trình duyệt.");
+                alert("Không tìm thấy tiện ích mở rộng của ví này trên trình duyệt! Vui lòng cài đặt, mở khóa ví hoặc chọn nút 'WalletConnect / Khác 🌐' để quét mã QR Code.");
             }
         }
-// Tiến trình kết nối ví chuỗi khối
+
         async function connectWalletProcess(ethProvider) {
             try {
                 const accounts = await ethProvider.request({ method: 'eth_requestAccounts' });
@@ -729,6 +775,9 @@
         }
 
         function disconnectWallet() {
+            if (walletConnectModalInstance && walletConnectModalInstance.getIsConnected()) {
+                walletConnectModalInstance.disconnect();
+            }
             userAccount = null;
             activeProviderSource = null;
             
@@ -781,11 +830,12 @@
             document.getElementById(`${tab}-usdt`).classList.remove('active');
             document.getElementById(`${tab}-${currency.toLowerCase()}`).classList.add('active');
             document.getElementById(`label-${tab}`).innerText = `AMOUNT IN ${currency} YOU PAY`;
-            document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.05' : '20';
+            
+            document.getElementById(`input-${tab}`).value = currency === 'BNB' ? '0.01' : '5';
             calculateTokens(tab);
         }
-
-        async function ensureBscNetwork(ethProvider) {
+async function ensureBscNetwork(ethProvider) {
+            if (!ethProvider) return false;
             try {
                 await ethProvider.request({
                     method: 'wallet_switchEthereumChain',
@@ -814,23 +864,46 @@
             }
         }
 
-        // HÀM XỬ LÝ THANH TOÁN - TÍCH HỢP CHẶN GIAO DỊCH TỐI THIỂU < 100 AMUL
         async function handleMainAction(tab) {
-            if (!userAccount) {
+            if (!userAccount && !(walletConnectModalInstance && walletConnectModalInstance.getIsConnected())) {
                 openWalletModal();
                 return;
             }
 
-            // Gọi hàm tính toán số lượng token hiện tại của người dùng nhập vào
             const currentExpectedTokens = calculateTokens(tab);
 
-            // THUẬT TOÁN CHẶN: Kiểm tra điều kiện tối thiểu 100 AMUL
             if (currentExpectedTokens < AMUL_MIN_BUY) {
                 alert(`Giao dịch bị chặn! Bạn phải mua tối thiểu từ ${AMUL_MIN_BUY} AMUL trở lên cho mỗi lần thực hiện giao dịch.`);
-                return; // Chặn đứng quy trình, không gọi ví ký tiền
+                return; 
             }
 
             const amount = document.getElementById(`input-${tab}`).value;
+            
+            if (walletConnectModalInstance && walletConnectModalInstance.getIsConnected()) {
+                try {
+                    const walletProvider = walletConnectModalInstance.getWalletProvider();
+                    const provider = new ethers.BrowserProvider(walletProvider);
+                    const signer = await provider.getSigner();
+                    const targetWallet = tab === 'seed' ? PROJECT_WALLET_SEED : PROJECT_WALLET_PRESALE;
+                    const currency = selectedCurrency[tab];
+
+                    if (currency === 'BNB') {
+                        const tx = await signer.sendTransaction({ to: targetWallet, value: ethers.parseEther(amount) });
+                        alert(`Giao dịch BNB thành công! Hash: ${tx.hash}`);
+                    } else {
+                        const usdtAbi = ["function transfer(address to, uint256 value) public returns (bool)"];
+                        const contract = new ethers.Contract(USDT_CONTRACT_BSC, usdtAbi, signer);
+                        const parsedAmount = ethers.parseUnits(amount, 18);
+                        const tx = await contract.transfer(targetWallet, parsedAmount);
+                        alert(`Giao dịch USDT thành công! Hash: ${tx.hash}`);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Giao dịch thất bại hoặc đã bị huỷ bỏ.");
+                }
+                return;
+            }
+
             const networkVerified = await ensureBscNetwork(activeProviderSource);
             if (!networkVerified) {
                 alert("Vui lòng chuyển ví sang mạng BNB Chain để thực hiện giao dịch.");
